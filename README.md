@@ -1,0 +1,2 @@
+# AggregatingReplyingKafkaTemplate
+AggregatingReplyingKafkaTemplate demo
