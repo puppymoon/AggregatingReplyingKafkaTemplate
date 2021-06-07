@@ -10,24 +10,24 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class CubKafkaListener {
 
-	@KafkaListener(id = "server-JCIC", topics = "${cub.spring.kafka.topic.query.request}")
-	@SendTo("${cub.spring.kafka.topic.query.reply}")
+	@KafkaListener(id = "server-JCIC", topics = "${cub.spring.kafka.query.topic.request}")
+	@SendTo("${cub.spring.kafka.query.topic.reply}")
 	public String listenerA(String message) throws InterruptedException {
 		Thread.sleep(2000);
 		log.info("JCICAAA - Server received: {}", message);
 		return "JCICAAA" + message;
 	}
 
-	@KafkaListener(id = "server-ECTH", topics = "${cub.spring.kafka.topic.query.request}")
-	@SendTo("${cub.spring.kafka.topic.query.reply}")
+	@KafkaListener(id = "server-ECTH", topics = "${cub.spring.kafka.query.topic.request}")
+	@SendTo("${cub.spring.kafka.query.topic.reply}")
 	public String listenerB(String message) throws InterruptedException {
 		Thread.sleep(2000);
 		log.info("ECTHAAA - Server received: {}", message);
 		return "ECTHAAA" + message;
 	}
 
-	@KafkaListener(id = "server-INTR", topics = "${cub.spring.kafka.topic.query.request}")
-	@SendTo("${cub.spring.kafka.topic.query.reply}")
+	@KafkaListener(id = "server-INTR", topics = "${cub.spring.kafka.query.topic.request}")
+	@SendTo("${cub.spring.kafka.query.topic.reply}")
 	public String listenerC(String message) throws InterruptedException {
 		Thread.sleep(2000);
 		log.info("INTRAAA - Server received: {}", message);

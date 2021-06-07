@@ -35,25 +35,19 @@ public class AggregaKafkaTemplateConfig {
 	@Value("${cub.spring.kafka.bootstrap-servers}")
 	private String servers;
 
-	@Value("${cub.spring.kafka.topic.batch.request}")
-	private String batchRequestTopic;
-
-	@Value("${cub.spring.kafka.topic.batch.reply}")
-	private String batchReplyTopic;
-
-	@Value("${cub.spring.kafka.topic.query.request}")
+	@Value("${cub.spring.kafka.query.topic.request}")
 	private String queryRequestTopic;
 
-	@Value("${cub.spring.kafka.topic.query.reply}")
+	@Value("${cub.spring.kafka.query.topic.reply}")
 	private String queryReplyTopic;
 
-	@Value("${cub.spring.kafka.consumer.group-id}")
+	@Value("${cub.spring.kafka.query.consumer.group-id}")
 	private String cosumerGroupId;
 
-	@Value("${cub.spring.kafka.consumer.reply.group-id}")
+	@Value("${cub.spring.kafka.query.consumer.reply.group-id}")
 	private String replyGroupId;
 
-	@Bean("OneClickAggregatingReplyingKafkaTemplate")
+	@Bean
 	public AggregatingReplyingKafkaTemplate<Integer, String, String> replyingTemplate(
 			ProducerFactory<Integer, String> pf,
 			ConcurrentMessageListenerContainer<Integer, Collection<ConsumerRecord<Integer, String>>> repliesContainer) {
@@ -67,7 +61,7 @@ public class AggregaKafkaTemplateConfig {
 		return template;
 	}
 
-	@Bean
+	@Bean("QueryConcurrentMessageListenerContainer")
 	public ConcurrentMessageListenerContainer<Integer, Collection<ConsumerRecord<Integer, String>>> repliesContainer(
 			ConcurrentKafkaListenerContainerFactory<Integer, Collection<ConsumerRecord<Integer, String>>> containerFactory) {
 
@@ -90,23 +84,23 @@ public class AggregaKafkaTemplateConfig {
 	}
 
 	@Bean
-	public NewTopic kRequests() {
+	public NewTopic queryRequestTopic() {
 		return TopicBuilder.name(queryRequestTopic).partitions(3).replicas(1).build();
 	}
 
 	@Bean
-	public NewTopic kReplies() {
+	public NewTopic queryReplyTopic() {
 		return TopicBuilder.name(queryReplyTopic).partitions(3).replicas(1).build();
 	}
 
-	@Bean
+	@Bean("QueryConcurrentKafkaListenerContainerFactory")
 	public ConcurrentKafkaListenerContainerFactory<Integer, Collection<ConsumerRecord<Integer, String>>> kafkaListenerContainerFactory() {
 		ConcurrentKafkaListenerContainerFactory<Integer, Collection<ConsumerRecord<Integer, String>>> factory = new ConcurrentKafkaListenerContainerFactory<>();
 		factory.setConsumerFactory(consumerFactory());
 		return factory;
 	}
 
-	@Bean
+	@Bean("QueryConsumerFactory")
 	public ConsumerFactory<Integer, Collection<ConsumerRecord<Integer, String>>> consumerFactory() {
 		return new DefaultKafkaConsumerFactory<>(consumerConfigs());
 	}
@@ -131,7 +125,7 @@ public class AggregaKafkaTemplateConfig {
 //		return new KafkaProperties.Listener();
 //	}
 
-	@Bean
+	@Bean("QueryProducerFactory")
 	public ProducerFactory<Integer, String> producerFactory() {
 		return new DefaultKafkaProducerFactory<>(producerConfigs());
 	}

@@ -1,20 +1,25 @@
 spring:
-  profiles:
-    active: local
+   profiles:
+      active: local
 cub:
-  spring:
-    kafka:
-      bootstrap-servers: localhost:9092
-      topic:
-        batch:
-          request: batchRequests
-          reply: batchReplies
-        query:
-          request: queryRequests
-          reply: querykReplies
-      consumer:
-          group-id: consumerGroupId
-          reply:
-            group-id: repliesGroupId
+   spring:
+      kafka:
+         bootstrap-servers: localhost:9092
+         batch:
+            topic:
+               request: batchRequests
+               reply: batchReplies
+            consumer:
+               group-id: batchConsumerGroupId
+            producer:
+               prefix: batch_
+         query:
+            topic:
+               request: queryRequests
+               reply: querykReplies
+            consumer:
+               group-id: queryConsumerGroupId
+               reply:
+                  group-id: queryRepliesGroupId
 server:
-  port: 8090
+   port: 8090
