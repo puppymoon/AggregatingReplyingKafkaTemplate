@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import cub.sdd.oneclick.DataCache;
 import cub.sdd.oneclick.controller.TestController;
+import cub.sdd.oneclick.dto.DataDto.User;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -22,17 +23,21 @@ public class BatchListener {
 	private DataCache dataCache;
 
 	@KafkaListener(topics = "${cub.spring.kafka.batch.topic.request}", groupId = "${cub.spring.kafka.batch.consumer.group-id}", containerFactory = "BatchContainerFactory")
-	public void listen(String userId, Acknowledgment ack) {
-		log.info("BatchListener recieve message, userId : " + userId);
+	public void listen(User user, Acknowledgment ack) {
+		log.info("BatchListener recieve message, userId : " + user.getUserId());
 		List<List<String>> list = dataCache.getList();
-		list.add(testController.sendQuery(userId));
+		List<String> returnList = testController.sendQuery(user);
+		if(null != returnList) {
+			list.add(returnList);
+		}
 
-		//TODO use redis to record
+		// TODO use redis to record
 		if (list.size() >= 3) {
 			print(list);
 		}
 		ack.acknowledge();
 	}
+
 
 	public void print(List<List<String>> list) {
 		log.info(">>>>>>>>>>>>Start");

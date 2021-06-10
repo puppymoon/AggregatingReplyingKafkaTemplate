@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
+import cub.sdd.oneclick.dto.DataDto.User;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -32,20 +33,20 @@ public class AsyncProducerService {
 
 	@Autowired
 	@Qualifier("BatchKafkaTemplate")
-	private KafkaTemplate<String, String> batchKafkaTemplate;
+	private KafkaTemplate<String, User> batchKafkaTemplate;
 
 	@Async("asyncTaskExecutor")
-	public void produce(String userId) {
+	public void produce(User user) {
 
 		batchKafkaTemplate.executeInTransaction(kafkaTemplate -> {
 
-			ProducerRecord<String, String> producerRecord = new ProducerRecord<>(batchRequestTopic, userId);
-			ListenableFuture<SendResult<String, String>> listenableFuture = kafkaTemplate.send(producerRecord);
+			ProducerRecord<String, User> producerRecord = new ProducerRecord<>(batchRequestTopic, user);
+			ListenableFuture<SendResult<String, User>> listenableFuture = kafkaTemplate.send(producerRecord);
 
-			listenableFuture.addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
+			listenableFuture.addCallback(new ListenableFutureCallback<SendResult<String, User>>() {
 
 				@Override
-				public void onSuccess(SendResult<String, String> result) {
+				public void onSuccess(SendResult<String, User> result) {
 
 					// 提交commit
 					Map<TopicPartition, OffsetAndMetadata> offsetsToCommit = new HashMap<>();
@@ -59,7 +60,7 @@ public class AsyncProducerService {
 
 				@Override
 				public void onFailure(Throwable throwable) {
-					log.error("failed to send, message={}", userId, throwable);
+					log.error("failed to send, message={}", user, throwable);
 				}
 			});
 

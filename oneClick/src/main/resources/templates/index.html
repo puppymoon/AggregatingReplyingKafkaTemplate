@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Submission of form</title>
+</head>
+<script src="../static/js/jquery-3.2.1.min.js" th:src="@{/js/jquery-3.2.1.min.js}"></script>
+
+<body>
+    <form method="post" th:object="${userList}">
+        <table>
+            <tr>
+                <td>A_ID:</td>
+                <td><input type="text" th:field="*{userA}" /></td>
+            </tr>
+            <tr>
+                <td>query topics:</td>
+                <td>
+                    <span th:each="topic : ${topics}">
+                        <input type="checkbox" th:field="*{queryTopicA}" th:value="${topic}" />
+                        <label th:for="${#ids.prev('queryTopicA')}" th:text="${topic}"></label>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td>B_ID:</td>
+                <td><input type="text" th:field="*{userB}" /></td>
+            </tr>
+            <tr>
+                <td>query topics:</td>
+                <td>
+                    <span th:each="topic : ${topics}">
+                        <input type="checkbox" th:field="*{queryTopicB}" th:value="${topic}" />
+                        <label th:for="${#ids.prev('queryTopicB')}" th:text="${topic}"></label>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td>C_ID:</td>
+                <td><input type="text" th:field="*{userC}" /></td>
+            </tr>
+            <tr>
+                <td>query topics:</td>
+                <td>
+                    <span th:each="topic : ${topics}">
+                        <input type="checkbox" th:field="*{queryTopicC}" th:value="${topic}" />
+                        <label th:for="${#ids.prev('queryTopicC')}" th:text="${topic}"></label>
+                    </span>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <button id="send">送出</button>
+</body>
+
+<script type="text/javascript">
+
+    $(function () {
+        $("#send").click(function (event) {
+            //ajax提交的話她會一直重新run程式直到回傳,你可以將此行註解使用開發者工具看一下console就知道了
+            event.preventDefault();
+            sendMsg();
+        });
+
+        sendMsg = function () {
+
+            var checkID = [];//定义一个空数组
+            $("input[name='checkedid']:checked").each(function (i) {//把所有被选中的复选框的值存入数组
+                checkID[i] = $(this).val();
+                console.log(checkID);
+            });
+
+            var obj =
+            {
+                'obj': [
+                    {
+                        "userId": $("#userA").val(),
+                        'queryTopic1': $("input[id='queryTopicA1']:checked").val(),
+                        'queryTopic2': $("input[id='queryTopicA2']:checked").val(),
+                        'queryTopic3': $("input[id='queryTopicA3']:checked").val(),
+                    },
+                    {
+                        "userId": $("#userB").val(),
+                        'queryTopic1': $("input[id='queryTopicB1']:checked").val(),
+                        'queryTopic2': $("input[id='queryTopicB2']:checked").val(),
+                        'queryTopic3': $("input[id='queryTopicB3']:checked").val(),
+                    },
+                    {
+                        "userId": $("#userC").val(),
+                        'queryTopic1': $("input[id='queryTopicC1']:checked").val(),
+                        'queryTopic2': $("input[id='queryTopicC2']:checked").val(),
+                        'queryTopic3': $("input[id='queryTopicC3']:checked").val(),
+                    }
+                ]
+            };
+            console.log(JSON.stringify(obj));
+
+            $.ajax({
+                type: 'POST',
+                url: "/submit",
+                dataType: "json",
+                contentType: "application/json;charset=utf-8",
+                data: JSON.stringify(obj),
+                success: function (data) {
+                    alert(data);
+                },
+                error: function (e) {
+                    console.log("ERROR : ", e);
+                }
+            });
+
+        }
+    });
+
+</script>
+
+</html>

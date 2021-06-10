@@ -21,6 +21,10 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ContainerProperties.AckMode;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.serializer.JsonSerializer;
+
+import cub.sdd.oneclick.dto.DataDto.User;
 
 @Configuration
 @EnableKafka
@@ -49,8 +53,8 @@ public class BatchKafkaTemplateConfig {
 		props.put(ConsumerConfig.GROUP_ID_CONFIG, batchConsumerGroupId);
 		props.put(ConsumerConfig.GROUP_INSTANCE_ID_CONFIG, uuid.toString());
 		props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-//		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+//		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
 		props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 		props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
 		props.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed");
@@ -58,15 +62,15 @@ public class BatchKafkaTemplateConfig {
 	}
 
 	@Bean("BatchConsumerFactory")
-	public ConsumerFactory<String, String> consumerFactory() {
-		return new DefaultKafkaConsumerFactory<>(consumerConfigs());
-//		return new DefaultKafkaConsumerFactory<>(consumerConfigs(), new StringDeserializer(),
-//				new JsonDeserializer<>(Message.class));
+	public ConsumerFactory<String, User> consumerFactory() {
+//		return new DefaultKafkaConsumerFactory<>(consume。rConfigs());
+		return new DefaultKafkaConsumerFactory<>(consumerConfigs(), new StringDeserializer(),
+				new JsonDeserializer<>(User.class));
 	}
 
 	@Bean("BatchContainerFactory")
-	public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
-		ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+	public ConcurrentKafkaListenerContainerFactory<String, User> kafkaListenerContainerFactory() {
+		ConcurrentKafkaListenerContainerFactory<String, User> factory = new ConcurrentKafkaListenerContainerFactory<>();
 		factory.setConsumerFactory(consumerFactory());
 		factory.getContainerProperties().setPollTimeout(1500);
 
@@ -86,20 +90,20 @@ public class BatchKafkaTemplateConfig {
 //		configProps.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, "prod-1");
 		configProps.put(ProducerConfig.ACKS_CONFIG, "all");
 		configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-		configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-//		configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+//		configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+		configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
 		return configProps;
 	}
 
 	@Bean("BatchProducerFactory")
-	public ProducerFactory<String, String> producerFactory() {
-		DefaultKafkaProducerFactory<String, String> factory = new DefaultKafkaProducerFactory<>(producerConfigs());
+	public ProducerFactory<String, User> producerFactory() {
+		DefaultKafkaProducerFactory<String, User> factory = new DefaultKafkaProducerFactory<>(producerConfigs());
 		factory.setTransactionIdPrefix(prefix);
 		return factory;
 	}
 
 	@Bean("BatchKafkaTemplate")
-	public KafkaTemplate<String, String> kafkaTemplate() {
+	public KafkaTemplate<String, User> kafkaTemplate() {
 		return new KafkaTemplate<>(producerFactory());
 	}
 
